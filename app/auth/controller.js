@@ -9,6 +9,7 @@ const register = async (req, res, next) => {
   try {
     let payload = req.body;
     let user = new User(payload);
+
     await user.save();
     return res.json({
       status: true,
@@ -47,7 +48,8 @@ const localStrategy = async (email, password, done) => {
 const login = (req, res, next) => {
   passport.authenticate('local', async function (err, user) {
     if (err) return next(err);
-    if (!user) return res.json({error: 1, message: 'Email or password incorrect'});
+    if (!user)
+      return res.json({error: 1, message: 'Email or password incorrect'});
     let signed = jwt.sign(user, config.secretKey);
     await User.findByIdAndUpdate(user._id, {$push: {token: signed}});
 
@@ -83,19 +85,20 @@ const logout = async (req, res, next) => {
 };
 
 const me = (req, res, next) => {
-  if(!req.user) {
+  if (!req.user) {
+    res.status(401),
     res.json({
-      err:1,
-      message: `You're not login or token expired`
-    })
+      err: 1,
+      message: `You're not login or token expired`,
+    });
   }
   res.json(req.user);
-}
+};
 
 module.exports = {
   register,
   localStrategy,
   login,
   logout,
-  me
+  me,
 };

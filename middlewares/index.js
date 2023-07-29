@@ -10,13 +10,19 @@ function decodeToken() {
 
       if (!token) return next();
       req.user = jwt.verify(token, config.secretKey);
-      let user = await User.findOne({token: {$in: [token]}});
+      let user = await User.findOne({
+        token: {
+          $in: [token],
+        },
+      });
 
       if (!user) {
+        res.status(401),
         res.json({
           error: 1,
           message: 'Token Expired',
         });
+        return;
       }
     } catch (err) {
       if (err && err.name === 'JsonWebTokenError') {
@@ -25,11 +31,13 @@ function decodeToken() {
           message: err.message,
         });
       }
+
       next(err);
     }
+
     return next();
   };
-} 
+}
 
 function police_check(action, subject) {
   return function (req, res, next) {

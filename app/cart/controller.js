@@ -3,20 +3,31 @@ const CartItem = require('../cart-item/model');
 
 const update = async (req, res, next) => {
   try {
-    const {items} = req.body;
-    const productIds = items.map(item => item.product._id);
-    const products = await Product.find({_id: {$in: productIds}});
+    const items = req.body.cart.map(item => ({
+      product: item._id,
+      name: item.name,
+      qty: item.qty,
+      price: item.price,
+      image_url: item.image_url,
+    }));
+
+    console.log(items);
+
+    const productIds = items.map(item => item?.product);
+    const products = await Product.find({
+      _id: {$in: productIds.map(product => product)},
+    });
 
     let cartItems = items.map(item => {
       let relatedProduct = products.find(
-        product => product._id.toString() === item.product._id,
+        product => product._id.toString() === item?.product,
       );
       return {
-        product: relatedProduct._id,
-        price: relatedProduct.price,
-        image_url: relatedProduct.image_url,
-        name: relatedProduct.name,
-        qty: item.qty,
+        product: relatedProduct?._id,
+        price: relatedProduct?.price,
+        image_url: relatedProduct?.image_url,
+        name: relatedProduct?.name,
+        qty: item?.qty,
         user: req.user._id,
       };
     });

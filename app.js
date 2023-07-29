@@ -28,8 +28,8 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(decodeToken());
 
-app.use('/auth', authRoute);
 app.use('/api', productRoute);
+app.use('/auth', authRoute);
 app.use('/api', categoryRoute);
 app.use('/api', tagRoute);
 app.use('/api', deliveryRoute);

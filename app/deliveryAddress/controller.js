@@ -1,24 +1,60 @@
 const deliveryAddress = require('./model');
+const User = require('../user/model');
+
+// const index = async (req, res, next) => {
+//   try {
+//     let {skip = 8, limit = 10} = req.query;
+//     let count = await deliveryAddress
+//       .find({
+//         user: req.user._id,
+//       })
+//       .countDocuments();
+//     let address = await deliveryAddress
+//       .find({user: req.user._id})
+//       .skip(parseInt(skip))
+//       .limit(parseInt(limit))
+//       .sort('-createdAt');
+
+//     return res.json({data: address, count});
+//   } catch (err) {
+//     if (err && err.name == 'ValidationError') {
+//       return (
+//         res.status(400),
+//         res.json({
+//           error: 1,
+//           message: err.message,
+//           fields: err.errors,
+//         })
+//       );
+//     }
+
+//     next(err);
+//   }
+// };
 
 const index = async (req, res, next) => {
   try {
-    let {skip = 8, limit = 10} = req.query;
-    let count = await deliveryAddress.find({
-      user: req.user._id,
-    }).countDocuments();
-    let address = await deliveryAddress.find({user: req.user._id})
+    let {skip = 0, limit = 10} = req.query;
+    let count = await deliveryAddress
+      .find({
+        user: req.user._id,
+      })
+      .countDocuments();
+    let address = await deliveryAddress
+      .find({user: req.user._id})
       .skip(parseInt(skip))
-      .limit(parseInt(limit))
-      .sort('-createdAt');
-
+      .limit(parseInt(limit));
     return res.json({data: address, count});
   } catch (err) {
     if (err && err.name == 'ValidationError') {
-      return res.json({
-        error: 1,
-        message: err.message,
-        fields: err.errors,
-      });
+      return (
+        res.status(400),
+        res.json({
+          error: 1,
+          message: err.message,
+          fields: err.errors,
+        })
+      );
     }
 
     next(err);
@@ -29,18 +65,22 @@ const store = async (req, res, next) => {
   try {
     let payload = req.body;
     let user = req.user;
-    let address = new deliveryAddress({...payload, user: user.id});
+    console.log(payload);
+    let address = new deliveryAddress({...payload, user: user._id});
     await address.save();
-    return res.json(address);
+    return res.status(200), res.json(address);
   } catch (err) {
     if (err && err.name === 'ValidationError') {
-      return res.json({
-        error: 1,
-        message: err.message,
-        fields: err.errors,
-      });
-      next(err);
+      return (
+        res.status(400),
+        res.json({
+          error: 1,
+          message: err.message,
+          fields: err.errors,
+        })
+      );
     }
+    next(err);
   }
 };
 
