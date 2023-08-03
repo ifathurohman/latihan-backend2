@@ -18,11 +18,19 @@ const orderSchema = Schema(
     },
 
     delivery_address: {
-      provinsi: {type: String, required: [true, 'provinsi harus diisi.']},
-      kabupaten: {type: String, required: [true, 'kabupaten harus diisi.']},
-      kecamatan: {type: String, required: [true, 'kecamatan harus diisi.']},
-      kelurahan: {type: String, required: [true, 'kelurahan harus diisi.']},
+      id_provinsi: {type: String},
+      provinsi: {type: String},
+      kabupaten: {type: String},
+      id_kabupaten: {type: String},
       detail: {type: String},
+    },
+
+    shipping_service: {
+      cost: {type: String},
+      description: {type: String},
+      etd: {type: String},
+      key: {type: String},
+      service: {type: String},
     },
 
     user: {
@@ -35,7 +43,8 @@ const orderSchema = Schema(
   {timestamps: true},
 );
 
-orderSchema.plugin(AutoIncrement, {inc_field: 'order_number'});
+// orderSchema.plugin(AutoIncrement, {inc_field: 'order_number'});
+
 orderSchema.virtual('items_count').get(function () {
   return this.order_items.reduce(
     (total, item) => total + parseInt(item.qty),
@@ -54,7 +63,7 @@ orderSchema.post('save', async function () {
     sub_total: sub_total,
     delivery_fee: parseInt(this.delivery_fee),
     total: parseInt(sub_total + this.delivery_fee),
-    delivery_address: this.delivery_address,
+    shipping_service: this.shipping_service,
   });
   await invoice.save();
 });

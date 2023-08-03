@@ -32,6 +32,16 @@ const show = async (req, res, next) => {
   }
 };
 
+const destroyAllData = async (req, res, next) => {
+  try {
+    let invoice = await Invoice.deleteMany();
+    return res.json(invoice);
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
   show,
+  destroyAllData,
 };

@@ -4,7 +4,6 @@ const {model, Schema} = mongoose;
 const orderItemSchema = Schema({
   name: {
     type: String,
-    minlength: [50, 'Panjang nama makanan minimal 50 karakter'],
     required: [true, 'name must be filled'],
   },
   price: {
@@ -24,6 +23,7 @@ const orderItemSchema = Schema({
     type: Schema.Types.ObjectId,
     ref: 'Order',
   },
+  image_url: String,
 });
 
 module.exports = model('OrderItem', orderItemSchema);
