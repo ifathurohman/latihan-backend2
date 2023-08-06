@@ -3,6 +3,8 @@ const DeliveryAddress = require('../deliveryAddress/model');
 const Order = require('../order/model');
 const {Types} = require('mongoose');
 const OrderItem = require('../order-item/model');
+const config = require('../../app/config');
+const midtransClient = require('midtrans-client');
 
 const store = async (req, res, next) => {
   try {
@@ -78,6 +80,7 @@ const index = async (req, res, next) => {
       .limit(parseInt(limit))
       .populate('order_items')
       .sort('-createdAt');
+      
     let orders = await Order.find({user: req.user._id})
       .skip(parseInt(skip))
       .limit(parseInt(limit))
@@ -102,6 +105,37 @@ const index = async (req, res, next) => {
   }
 };
 
+const payment = async (req, res, next) => {
+  try {
+    const snap = new midtransClient.Snap({
+      isProduction: false,
+      serverKey: config.serverKey,
+      clientKey: config.clientKey,
+    });
+
+    const parameter = {
+      transaction_details: {
+        order_id: req.body.order_id,
+        gross_amount: req.body.total,
+      },
+      customer_details: {
+        first_name: req.body.name,
+      },
+    };
+
+    snap.createTransaction(parameter).then(transaction => {
+      const dataPayment = {
+        response: JSON.stringify(transaction),
+      };
+      const token = transaction.token;
+
+      res.status(200).json({message: 'Berhasil', dataPayment, token: token});
+    });
+  } catch (error) {
+     res.status(500).json({message: message});
+  }
+};
+
 const destroyAllDataOrder = async (req, res, next) => {
   try {
     let order = await Order.deleteMany();
@@ -123,6 +157,7 @@ const destroyAllDataOrderItem = async (req, res, next) => {
 module.exports = {
   store,
   index,
+  payment,
   destroyAllDataOrder,
   destroyAllDataOrderItem,
 };

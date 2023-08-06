@@ -41,6 +41,8 @@ const invoiceSchema = Schema(
       type: Schema.Types.ObjectId,
       ref: 'Order',
     },
+
+    order_items: [{type: Schema.Types.ObjectId, ref: 'OrderItem'}],
   },
   {timestamps: true},
 );

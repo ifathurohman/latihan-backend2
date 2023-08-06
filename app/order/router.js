@@ -9,4 +9,6 @@ router.get('/orders', police_check('view', 'Order'), orderController.index);
 router.delete('/orders', orderController.destroyAllDataOrder);
 router.delete('/orders-Item', orderController.destroyAllDataOrderItem);
 
+router.post('/orders-payment', orderController.payment);
+
 module.exports = router;
