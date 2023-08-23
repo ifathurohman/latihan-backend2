@@ -41,8 +41,6 @@ const store = async (req, res, next) => {
       user: req.user._id,
     });
 
-    console.log(order);
-
     const orderItems = await OrderItem.insertMany(
       cart.map(item => ({
         ...item,
@@ -80,7 +78,7 @@ const index = async (req, res, next) => {
       .limit(parseInt(limit))
       .populate('order_items')
       .sort('-createdAt');
-      
+
     let orders = await Order.find({user: req.user._id})
       .skip(parseInt(skip))
       .limit(parseInt(limit))
@@ -129,10 +127,16 @@ const payment = async (req, res, next) => {
       };
       const token = transaction.token;
 
-      res.status(200).json({message: 'Berhasil', dataPayment, token: token});
+      if(token) {
+        res.status(200).json({message: 'Berhasil', dataPayment, token: token});
+      } else {
+       console.log(transaction);
+      }
+
     });
-  } catch (error) {
-     res.status(500).json({message: message});
+
+  } catch (err) {
+    return(err)
   }
 };
 

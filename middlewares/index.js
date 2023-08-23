@@ -26,10 +26,13 @@ function decodeToken() {
       }
     } catch (err) {
       if (err && err.name === 'JsonWebTokenError') {
-        return res.json({
-          error: 1,
-          message: err.message,
-        });
+        return (
+          res.status(401),
+          res.json({
+            error: 1,
+            message: err.message,
+          })
+        );
       }
 
       next(err);
